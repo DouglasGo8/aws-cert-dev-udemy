@@ -9,7 +9,7 @@ provider "aws" {
 
 resource "aws_instance" "t2-nano-mult-inst" {
   count                  = var.instance_count
-  ami                    = lookup(var.amis, var.region)
+  ami                    = data.aws_ami.amzn2.id
   instance_type          = var.instance_type
   vpc_security_group_ids = ["${data.aws_security_group.allow-ssh.id}"]
   key_name               = aws_key_pair.key-pub.key_name
