@@ -129,3 +129,52 @@ $ ifconfig -a
     * Routing tables to different target groups
       1. Routing based on path in URL (foo.com/***users*** & foo.com/***posts***)
     * Great fit with Micro Services * Container-based app e.g Docker & Amazon ECS
+  * Network Load Balance (v2)
+    * Forward TCP & UDP traffic to your instances
+    * Handle millions of requests per seconds
+    * Less latency ~ 100ms (vs 400ms for ALB)
+    * NLB has <u><b>one static IP per AZ</b></u>, and supports assigning Elastic IP
+    * NLB are used for extreme performance, TCP or UDP traffic
+    * Load Balancer Stickiness means that the same client is always redirected to the same instance behind a load balancer, works for Classic LB a Application LB
+  * Cross Zone Load
+    * Each lb instance distributes evenly across all registered instances in all AZ, otherwise each load balancer node distributes requests evenly across the registered instances in its AZ only
+  * SSL - Server Name Indication
+    * Solves the problem of loading **multiple SSL certificates onto web server**
+
+#### ELB - Connection Draining
+ * CLB: Connection Draining
+ * Target Group: Deregistration Delay (ALB & NLB)
+
+#### Auto Scaling Group
+ * The goal of an ASG is to:
+   * Scale out (add EC2 instances) to match an increased load
+   * Scale in (remove EC2 instances) to match a decreased load
+   * Ensure we have a minimum and maximum number of machines running
+   * Automatically Register new instances to a load balancer
+     * Configuration needs:
+       1. *AMI + Instance Type&*
+       2. *EC2 User Data*
+       3. *EBS Volumes (SSD_)*
+       4. *Security Groups*
+       5. *SSH Key Pair*
+    * Capacity
+      1. Min/Max/Initial Capacity
+    * Networks + Subnets Information
+    * Load Balancer Information
+    * Scale Policies
+  * Auto Scaling Alarms
+    * Scale base on CloudWatch alarms
+    * Scale New Rules
+      * Now is possible to define "better" auto scaling rules that are directly managed by EC2
+      * Target Average CPU Usage
+      * Number of Requests on the ELB per instance
+      * Average Network In/Out
+    * Custom Metrics
+      * Custom metrics e.g based on connected users
+    * Scaling Policies
+      * Target Tracking Scaling
+        1. Most simple and easy to set-up, e.g I want the average ASG CPU to stay at around 40%
+      * Simple / Step Scaling
+        1. When Cloud watch alarm is triggered e.g CPU > 70%, then add 2 units, Or < 30% then remove 1
+      * Anticipate a scaling based on known usage patterns, e.g increase the min capacity to 10 at 5 p.m on fridays
+      * Scaling Cool downs ensure that your ASG group doesn't launch or terminate additional instances before the previous scaling activity takes effect
