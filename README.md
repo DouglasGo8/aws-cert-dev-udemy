@@ -1,5 +1,5 @@
 ### Ultimate AWS Certified Developer Associate 2020
-<br />
+---
 
 <ol>
     <li>
@@ -29,6 +29,16 @@ $ ifconfig -a
  * Groups
  * Roles  
 ##### Root Account (Never be used or shared)
+
+#### AWS CLI
+```
+$ aws configure
+$ AWS Access Key ID [None]: (paste|type) your access key here
+$ AWS Secret Access Key [None]: (paste|type) your access key here
+$ Default region name [None]: (paste|type) your default region here
+$ Default out format [None]: 
+$ ls -la ~/.aws
+```
 
 
 #### EC2
@@ -178,3 +188,146 @@ $ ifconfig -a
         1. When Cloud watch alarm is triggered e.g CPU > 70%, then add 2 units, Or < 30% then remove 1
       * Anticipate a scaling based on known usage patterns, e.g increase the min capacity to 10 at 5 p.m on fridays
       * Scaling Cool downs ensure that your ASG group doesn't launch or terminate additional instances before the previous scaling activity takes effect
+  
+#### EBS Elastic Block Storage Volumes
+ * Can be attached only one instance at a time
+ * An EC2 instance loses its root volume (main drive) when it is manually terminated
+ * Unexpected terminations might happen from time to time
+ * Sometimes, we need stop your instances
+ * EBS come in 4 types
+   * GP2 (SSD): General purpose SS volume
+   * IO1 (SSD): Highest-performance SSD volume for mission-critical (MonoDB, Cassandra, SQL etc)
+   * ST1 (HDD): Low cost HDD frequently access, throughput intensive workloads
+   * SC1 (HDD): Lowest cost HDD volume less frequently access
+ * Commands over EC2 Instance with **aws_volume_attachment**
+  ```
+  [ec2user ~]$ lsblk
+  [ec2user ~]$ sudo file -s /dev/xvdb
+  [ec2user ~]$ sudi mkfs -t ext4 /dev/xvdb
+  [ec2user ~]$ sudo mkdir /data
+  [ec2user ~]$ sudo mount /dev/xvdb /data
+  [ec2user ~]$ lsblk
+  ```
+
+#### EFS Elastic File System
+ * Mounting 100s of instances across AZ
+ * Managed EFS (network file system) that can be mounted on many EC2
+ * Highly available, scalable, expensive (3x gp2), pay per use
+
+#### RDS Relation Database Service
+ * It's a managed DB service for DB use SQL as query language
+ * It allow you to create databases in the cloud that are managed by AWS
+   * Postgres
+   * MySQL
+   * MariaDB
+   * Oracle
+   * Microsoft SQL Server
+   * Aurora (AWS Proprietary DB Engine)
+   * Advantages over using RDS versus EC2
+     * RDS is managed service
+     * Automated provisioning with OS patching
+     * Read replicas to improved read performance
+     * Multi AZ setup for Disaster Recovery
+     * Scaling capability both Vertical and Horizontal
+     * Storage backed by EBS (gp2 or io1)
+     * **You can't SSH into your instances**
+   * RDS Read Replicas for read Scalability
+     * Within AZ, Cross AZ and Cross Region in up to N instances
+     * This replication is ASYNC so reads eventually consistent
+     * AWS Aurora is not open sourced
+     * AWS Aurora is "AWS cloud optimized" and claims 5x perform improvement over MySQL on RDS and over 3x performance of Postgres on RDS
+     * Aurora storage automatically grows, have a Master a plenty Read replicas
+     * Aurora Serverless to automated database instantiation with auto-scaling based on actual usage, good for infrequent, intermittent or unpredictable workloads
+  
+#### ElastiCache 
+ * Same way RDS is to get managed RDB
+ * Elasticache is to get managed by Redis or Memcached
+ * Caches are in-memory databases with really high performance, low latency
+ * ElastiCache Strategies
+   * (Considerations) [https://aws.amazon.com/caching/implementation-considerations]
+   * Is it safe to cache data? In general yes but data can be out of date
+   * Pattern: data caching slowly, few keys are frequently needed
+   * Anti Pattern: data caching rapidly, all large key space frequently needed
+   * Data structured is necessary? Key caching or cache aggregate results
+   * Cache hit means -> My App find the key info
+   * Cache miss does not have the data, and we need find the data in somewhere, after found we need write the data in cache
+
+#### Route 53
+ * Is a managed DNS (Domain Name System)
+ * DNS is a collection of rules and records which helps clients understand how to reach a server through its domain name
+ * Has advanced features such as
+   * Load Balancing (through DNS - also called client load balancing)
+   * Health checks, but limited
+
+#### VPC
+ * Private network cloud to deploy your resources (is a regional resource), if you have two AWS regions, they will have two different VPCs, VPCs are grouped by Subnets, that allows you partition your network in VPC, subnets are defined at the availability zone level
+   * AZ a - Multiple Subnets, 
+    1. public subnet (www), is accessible from internet
+    2. private subnets, is not accessible from internet's
+ * To define access to internet and between subnets we use Route Tables, this means how we network data flows
+ * VPC CIDR Range - 10.0.0.0/16 - | AZ 1 | AZ 2 | both zones can be have private and public subnets between *CIDR Range*
+  * Internet Gateway & NAT Gateways
+    * Inside your Subnets you have a EC2 instance for example, to enable this instance to access (www) you must use a internet gateway, it will help the instance to connect into the internet, subnet have a route to igw, 
+    * When we have an instance inside a private subnet we can access the internet also, but for this we need use NAT Gateways (AWS-managed) & NAT Instances (self-managed) allow your instances in your *Private Subnets* to access the internet while remaining private, nat gateway will created inside public subnet and it will be accessed from the private subnet creating a route between them
+  * Network ACLs & Security Groups
+    * VPC -> Subnet -> Public subnet -> EC2 instance -> Nat ACL which is a ***firewall ALLOW | DENY rules*** to control traffic in subnets, are attached at the subnet level, this rules only include IP addresses, this means all the traffic from this IP is allowed ou denied
+    * VPC -> Subnet -> Public subnet -> EC2/ENI Instance -> Security group is a ***firewall ALLOW*** traffic, can reference IPs a others security groups
+    <table>
+      <tr>
+        <th colspan="2"><center>Network ACLs vs Security Groups</center></th>
+      </tr>
+      <tr>
+        <th>Security Group</th>
+        <th>Network ACLs</th>
+      </tr>
+      <tr>
+        <td>Operates at the instance level</td>
+        <td>Operates at the subnet level</td>
+      </tr>
+      <tr>
+        <td>Support allow rules only</td>
+        <td>Support allow and deny rules</td>
+      </tr>
+      <tr>
+        <td>Is stateful: returns traffic is automatically allowed, regardless of any rules
+        </td>
+        <td>Is stateless: returns traffic must be explicitly allowed rules</td>
+      </tr>
+      <tr>
+        <td>We evaluate all rules before deciding whether to allow traffic</td>
+        <td>We process rules in number order when deciding whether to allow traffic</td>
+      </tr>
+      <tr>
+        <td>Applies to an instance only if someone specifies the such sg when launching the instance, or associates the security group with the instance later on</td>
+        <td>Automatically applies to all instances in the subnets it's associated with (therefore, you don't have on rely on users to specify the sg</td>
+      </tr>
+    </table>
+  * VPC Flow Logs
+    * Capture all information about IP traffic going into your interfaces, such as VPC, Subnet and ENI flow logs
+  * VPC Peering
+    * Connect two vpc, private using AWS's network, making them as if they were in the same network, assure that not overlapping CIDR, there is not transitive communication among them
+  * VPC Endpoints
+    * Allow you to connect to AWS Service using a private network instead of the public www, vpc endpoint to connect DynamoDB outside
+  * Site to Site VPN & Direct Connect
+    * Site to Site VPN to connect on premises data centers VPN to AWS, connection will be automatically encrypted over public internet
+    * Direct Connect (DX) achieve the same purpose connection On Premise DC -> VPC but in here we have a physical private connection not over the public internet is going to be secure and fast
+
+#### AWS S3
+ * S3 is one of the main building blocks of AWS, it is advertised as "infinitely scaling" storage
+ * They allow store objects (files) in "buckets" (directories), each bucket MUST have globally unique name, 
+ * Are defined ate the region level, 
+   * have a name convention, 
+   * no uppercase, 
+   * no underscore, 
+   * 3-63 chars
+   * not an IP
+   * must start with lowercase letter or number
+ * Objects (files) have a key, key is the full path, e.g 1 s3://my-bucket/my_file.txt, the key is my_file.txt, eg s3://my-bucket/my_folder/another_folder/my_file.txt the key is my_folder/another_folder/my_file.txt, prefix + object name can defined the key
+ * Max object Size is 5TB (5000GB), greater than must be multi-parted
+ * Version ID if versioning is enabled
+ * There are 4 methods of encrypting objects in s3
+   * SSE-S3, SSE-KMS, SSE-C, Client Side Encryption -> Upload Objects Encryption actions
+   * Default Encryption None, AES-256, AWS-KMS
+   * S3 Security based on Policies for IAM Principal see [https://awspolicygen.s3.amazonaws.com/policygen.html]
+ * S3 Websites can host static websites and have them accessible on the www
+   
