@@ -1,4 +1,5 @@
 # Compiled files
+.tfvars
 *.tfstate
 *.tfstate.backup
 *.tfstate.lock.info
@@ -28,3 +29,4 @@
 
 # Secrets AWS Local account
 .secret/
+

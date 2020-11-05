@@ -34,6 +34,7 @@ resource "aws_iam_instance_profile" "s3_instance_profile" {
   role = aws_iam_role.s3_role.name
 }
 
+// Can contain multiple policies
 resource "aws_iam_role_policy" "s3_iam_role_policy" {
   name   = "s3_iam_role_policy"
   role   = aws_iam_role.s3_role.id
@@ -48,6 +49,16 @@ resource "aws_iam_role_policy" "s3_iam_role_policy" {
       ],
       "Effect": "Allow",
       "Resource": "*"
+      "Sid": "StmtMySid1"
+    },
+    {
+      "Sid": "StmtMySid2",
+      "Effect": "Allow",
+      "Action": [
+        "sts:DecodeAuthorizationMessage",
+        "ec2:RunInstances"
+      ],
+      "Resource": "*"
     }
   ]
 }
@@ -60,16 +71,8 @@ resource "aws_instance" "t2-micro-inst" {
   vpc_security_group_ids = ["${data.aws_security_group.allow-ssh.id}"]
   key_name               = aws_key_pair.key-pub.key_name
   iam_instance_profile   = aws_iam_instance_profile.s3_instance_profile.name
-  user_data              = <<EOF
-    #!/bin/bash
-    sudo su
-    yum update -y
-    yum -y install httpd.x86_64
-    sudo systemctl enable httpd
-    sudo systemctl start httpd
-  EOF
   tags = {
-    Name = "aws-certified-dev-machine-01"
+    Name = "aws-cert-dev-machine-01"
   }
 }
 

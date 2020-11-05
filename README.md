@@ -13,6 +13,7 @@
 
 </ol>
 
+
 #### Terraform Commands
 EC2 Key Pairs Instance
 ```
@@ -54,6 +55,7 @@ $ ls -la ~/.aws
    * R/C/P/G/H/X/I/F/Z/CR are spec in RAM, CPU, I/O, Network, GPU
    * M instances types are balanced (no good fo GPUs)
    * T2/T3 types are 'burstable' (free) can have a spike and a CPU can keep very good
+   * (Amazon EC2 Instances Type) [https://aws.amazon.com/ec2/instance-types]
   
 #### EC2 Instance Launch Type
  * Reserved 
@@ -311,6 +313,13 @@ $ ls -la ~/.aws
   * Site to Site VPN & Direct Connect
     * Site to Site VPN to connect on premises data centers VPN to AWS, connection will be automatically encrypted over public internet
     * Direct Connect (DX) achieve the same purpose connection On Premise DC -> VPC but in here we have a physical private connection not over the public internet is going to be secure and fast
+  * Public subnet for web servers and app server
+  * Private subnet for database servers (RDS)
+  * NAT Gateway for private instances to access internet
+  * Internet Gateway for public instances to access internet
+  * Elastic IP attached to NAT gateway
+  * Route table for Public and Private subnets
+  * Route table associations
 
 #### AWS S3
  * S3 is one of the main building blocks of AWS, it is advertised as "infinitely scaling" storage
@@ -330,4 +339,62 @@ $ ls -la ~/.aws
    * Default Encryption None, AES-256, AWS-KMS
    * S3 Security based on Policies for IAM Principal see [https://awspolicygen.s3.amazonaws.com/policygen.html]
  * S3 Websites can host static websites and have them accessible on the www
-   
+ * IAM Policy Simulator [https://policysim.aws.amazon.com/home]
+ * AWS Dry Runs to make sure we have permissions, needs iam policy to run all the bellow commands
+  ```
+  $ aws ec2 run-instances --dry-run --image-id {{image_id_here}} --instance-type t2.nano
+  $ aws sts decode-authorization-message --encoded-message {{token_msg_here}}
+  ```
+
+#### S3 Storage Classes
+
+ * Amazon S3 Standard - General Purpose
+ * Amazon S3 Standard-Infrequent Access (IA)
+ * Amazon S3 One Zone-Infrequent Access
+ * Amazon S3 Intelligent Tiering
+ * Amazon Glacier
+ * Amazon Glacier Deep Archive
+
+#### AWS ECS Essentials
+
+ * ECS is used to run Docker containers and has 3 flavors (ECS Classic|Fargate|EKS)
+   * Clusters 
+      a. Are logical grouping of EC2 Instances
+      b. EC2 instances run the ECS agent (Docker container)
+      c. ECS agents registers the instance to the ECS cluster
+      d. EC2 instances run a special AMI, made specifically for ECS
+   * 
+   * Services
+   * Tasks
+   * Tasks Definition
+ * ECR
+   * Store images to be used over containers
+  ```
+  $ aws ecr get-login-password --region sa-east-1 | docker login --username AWS --password-stdin 123456.dkr.ecr.eu-west-I.amazonaws.com
+  ```
+ * Fargate
+ * EKS
+ * ECS Classic 
+   * EC2 instances must be created and managed
+   * Must configure the file /etc/ecs/ecs.config with the cluster name
+   * EC2 instance must run an ECS agent
+   * EC2 instances can run multiple containers on the same type, must specify only containers
+ * 
+
+#### AWS Elastic Beanstalk
+
+* Elastic Beanstalk is a platform as a Service
+  * It uses components like EC2, ASG, ELB, RDS, etc...
+  * Is a free service, but underlying instances have a cost
+* Allows us to deploy apps easily in scalable and safe way
+* Managed Service with managed OS and Instances
+* Have 3 components
+  * Application
+  * Application Version: each deployment gets assigned a version
+  * Environment name (dev|test|prod) promotion app version to next envs
+* Elastic Beanstalk Deployment Modes
+  * Single instance -> Dev Mod
+  * High Availability with Load Balancer -> Prod Mod
+  * .ebextensions/ dir in the root of source to AEB extension, yaml or json format .config file
+  * To run as Single Docker Container with Dockerfile and does not use ECS
+  * To run as Multi Docker Container helps with multiple container per EC2 instance uses ECS behind the scenes
