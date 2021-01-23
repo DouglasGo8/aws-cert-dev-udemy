@@ -398,3 +398,34 @@ $ ls -la ~/.aws
   * .ebextensions/ dir in the root of source to AEB extension, yaml or json format .config file
   * To run as Single Docker Container with Dockerfile and does not use ECS
   * To run as Multi Docker Container helps with multiple container per EC2 instance uses ECS behind the scenes
+
+#### AWS Monitoring & Audit
+* AWS Cloudwatch
+  * Metrics - Collect and track key metrics
+    a. provides metrics for every services in AWS
+    b. Metric can be represented by variable to monitor (CPUUtilization, NetworkIn...)
+  * Can Create a Auto Scale Group Metrics
+  * Logs - Collect, monitor, analyze and store log files
+    * Apps can send logs to Cloudwatch using the SDK
+    * Collect log from
+      * Elastic Beanstalk
+      * ECS
+      * AWS Lambda
+      * VPC Flow Logs
+      * API Gateway
+      * CloudTrail based on filter
+      * CloudWatch log agents for example on EC2 Machines
+      * Route53
+      * Can go to S3 to archival
+      * Stream to ElasticSearch
+      * By default no logs for EC2 machines will go to CloudWatch, we need create a starter agent to EC2 push the log files
+  * Events - Send notifications when certain events happen in your AWS
+  * Alarms - React in real-time to metrics / events
+    * Are used to trigger notifications for any metric
+    * Can go to ASG, EC2 actions, SNS Notifications
+    * Various options e.g %, max, min etc
+* AWS X-Ray
+  * New Service and no much popular
+    * Troubleshooting apps performance and errors
+    * Distributed tracing of Microservices
+    * Needs SDK to instrumentation your app, and start X-Ray Daemon process by data scripting on the EC2 instance
