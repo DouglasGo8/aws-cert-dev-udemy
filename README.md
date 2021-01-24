@@ -68,10 +68,11 @@ $ ls -la ~/.aws
  * Dedicated Hosts
 
 #### Security Groups
- * Are the fundamental of network security in AWS
- * They control how traffic is allowed into or out in ec2 vm 
- * Acting as a "firewall" on EC2 instances
- * Actually
+
+* Are the fundamental of network security in AWS
+* They control how traffic is allowed into or out in ec2 vm 
+* Acting as a "firewall" on EC2 instances
+* Actually
     * Access to Ports
     * Authorize IP ranges - IPv4 and IPv6
     * Control of inbound network (from other to the instance)
@@ -357,8 +358,8 @@ $ ls -la ~/.aws
 
 #### AWS ECS Essentials
 
- * ECS is used to run Docker containers and has 3 flavors (ECS Classic|Fargate|EKS)
-   * Clusters 
+* ECS is used to run Docker containers and has 3 flavors (ECS Classic|Fargate|EKS)
+  * Clusters 
       a. Are logical grouping of EC2 Instances
       b. EC2 instances run the ECS agent (Docker container)
       c. ECS agents registers the instance to the ECS cluster
@@ -400,6 +401,7 @@ $ ls -la ~/.aws
   * To run as Multi Docker Container helps with multiple container per EC2 instance uses ECS behind the scenes
 
 #### AWS Monitoring & Audit
+
 * AWS Cloudwatch
   * Metrics - Collect and track key metrics
     a. provides metrics for every services in AWS
@@ -429,3 +431,10 @@ $ ls -la ~/.aws
     * Troubleshooting apps performance and errors
     * Distributed tracing of Microservices
     * Needs SDK to instrumentation your app, and start X-Ray Daemon process by data scripting on the EC2 instance
+  
+#### Lambda
+
+* Means no servers
+* FaaS Function as Service
+* Servless in AWS - Lambda, DynamoDB, AWS Cognito, API Gateway, AWS S3, SNS & SQS Kinesis Data Firehouse, Serverless, Step Functions, Fargate
+* Lambda Logging - executions are store in aws cloudwatch, must sure your aws lambda has an execution role
